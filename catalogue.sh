@@ -9,6 +9,7 @@ G="\e[32m"          #-e must to enable colour code
 Y="\e[33m"
 N="\e[0m" #normal
 SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.exploreops.online
 
 if [ $USERID -ne 0 ]; then
     echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
@@ -67,5 +68,20 @@ systemctl daemon-reload
 systemctl enable catalogue &>>$LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and emabling catalogue"
+
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
+dnf install mongodb-mongosh -y
+
+INDEX=$(mongosh --host $MONGODB_HOST --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+
+if [ $INDEX -le 0 ]; then
+    mongosh --host $MONGODB_HOST </app/db/master-data.js
+    VALIDATE $? "Loading Products"
+else 
+    echo -e "Products already loaded...$Y SKIPPING $N"
+fi
+systemctl restart catalogue
+VALIDATE $? "Restarting catalogue"
+
 
 
