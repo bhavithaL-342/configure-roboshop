@@ -27,5 +27,5 @@ if [ $instance == "frontend" ]; then
         --query "Reservations[].Instances[].PrivateIpAddress" \
         --output text
     )
-
+fi
 done
