@@ -8,6 +8,8 @@ R="\e[31m"
 G="\e[32m"          #-e must to enable colour code
 Y="\e[33m"
 N="\e[0m" #normal
+SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.exploreops.online
 
 if [ $USERID -ne 0 ]; then
     echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
@@ -24,22 +26,17 @@ else
 fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Copying Mongo Repo"
 
-dnf install mongodb-org -y &>>$LOGS_FILE
-VALIDATE $? "Installing MongoDB server"
+dnf module disable redis -y &>>$LOGS_FILE
+VALIDATE $? "Disabling redis"
 
-systemctl enable mongod &>>$LOGS_FILE
-VALIDATE $? "Enable MongoDB"
+dnf module enable redis:7 -y &>>$LOGS_FILE
+VALIDATE $? "Enabling redis 7"
 
-systemctl start mongod
-VALIDATE $? "Start MongoDB"
-
-sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf #-i permanant change
+sed -i -e 's/127.0.0.1/0.0.0.0/g' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$LOGS_FILE 
 VALIDATE $? "Allowing remote connections"
 
-systemctl restart mongod
-VALIDATE $? "Restarted MongoDB"
-
+systemctl enable redis &>>$LOGS_FILE
+systemctl start redis 
+VALIDATE $? "Enabled and started Redis"
 
