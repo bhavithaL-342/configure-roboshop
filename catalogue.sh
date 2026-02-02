@@ -24,22 +24,21 @@ else
 fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Copying Mongo Repo"
+dnf module disable nodejs -y &>>$LOGS_FILE
+VALIDATE $? "Disabling NodeJS default version"
 
-dnf install mongodb-org -y &>>$LOGS_FILE
-VALIDATE $? "Installing MongoDB server"
+dnf module enable nodejs:20 -y &>>$LOGS_FILE
+VALIDATE $? "enabling NodeJS 20"
 
-systemctl enable mongod &>>$LOGS_FILE
-VALIDATE $? "Enable MongoDB"
+dnf install nodejs -y &>>$LOGS_FILE
+VALIDATE $? "installing nodejs"
 
-systemctl start mongod
-VALIDATE $? "Start MongoDB"
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+VALIDATE $? "Creating System User"
 
-sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
-VALIDATE $? "Allowing remote connections"
+mkdir /app 
+VALIDATE $? "Creating app directory"
 
-systemctl restart mongod
-VALIDATE $? "Restarted MongoDB"
-
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
+VALIDATE $? "Downloading Catalogue code"
 
