@@ -40,7 +40,7 @@ fi
 mkdir -p /app 
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$LOGS_FILE
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>>$LOGS_FILE
 VALIDATE $? "Downloading shipping code"
 
 cd /app
@@ -59,10 +59,10 @@ VALIDATE $? "Installing and Building shipping"
 mv target/shipping-1.0.jar shipping.jar 
 VALIDATE $? "Moving and renaming shipping"
 
-cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>>$LOGS_FILE
+cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service 
 VALIDATE $? "Creating systemctl service"
 
-dnf install mysql -y &>>$LOGS_FILE
+dnf install mysql -y  &>>$LOGS_FILE
 VALIDATE $? "Installing Mysql"
 
 
@@ -76,7 +76,7 @@ else
     echo "Data is already loaded...$Y SKIPPING $N"
 fi
 
-systemctl enable shipping &>>$LOGS_FILE
+systemctl enable shipping  &>>$LOGS_FILE
 systemctl start shipping
 VALIDATE $? "Enabling and started"
 
